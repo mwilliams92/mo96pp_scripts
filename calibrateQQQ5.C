@@ -20,7 +20,7 @@ vector < Double_t > findpeaks(TH1* h){
  	h->GetXaxis()->SetRange(300,1500);
  
  	TSpectrum * s = new TSpectrum(npeaks);
- 	Int_t nfound = s->Search(h, 6., "", 0.3);
+ 	Int_t nfound = s->Search(h, 5., "", 0.3);
 
     Double_t * xpeaks = s->GetPositionX();  
     for (int i=0; i<=nfound; i++){
@@ -51,10 +51,9 @@ double * findcalib(vector < Double_t > peaks)	{
 }
 
 // Feed this a layer to tell it which root file to use and the channels corresponding to the first ring and sector
-void calibrateQQQ5(TString layer, Int_t FirstRing){
+void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TString outputFile){
 
 			TString fname;
-			Int_t ringStart, sectorStart;
 
 			if (layer == "E1") {	
 				fname = "../protons/cal228th_QQQ5_E1_a.root";	// file name
@@ -67,43 +66,75 @@ void calibrateQQQ5(TString layer, Int_t FirstRing){
 			}
 			else { printf("Invalid detector, choose either dE, E1, or E2"); return 0;	}
 
-			TFile *file=TFile::Open(fname);
+			TFile *file=TFile::Open(inputFile);
 
-			TCanvas *cRings = new TCanvas("Rings"); // canvas for rings
-			cRings->Divide(6,6);
-			//TCanvas *cSectors = new TCanvas("Sectors"); // canvas for sectors
-			//cSectors->Divide(2,2);
+			TCanvas *cQQQ5 = new TCanvas("QQQ5"); // canvas for rings
+			cQQQ5->Divide(6,6);
 			
 			const int nRings = 32;
 			const int nSectors = 4;
 
-			int nchan;
+			int cID, rID, sID;
 			char hname[8];
-			TH1F *hRing[32];
+			TH1F *hRing[nRings], *hSector[nSectors];
 
 			ofstream outfile;
-			outfile.open ("ringcalib.dat");
+			outfile.open ("QQQ5calib.dat");
 
-			for(int i=0; i<nRings; i++) {
+			for(int i=FirstRing; i<nRings+FirstRing; i++) {
 
-				cRings->cd(i+1);
-				nchan = FirstRing + i;
-				sprintf(hname,"d%i", nchan);
+				rID = i - FirstRing;		// Ring number within QQQ5 0->31
+				cID = rID + 1;	// Subcanvas ID
+				cout << cID << endl;
+				cQQQ5->cd(cID);
+				sprintf(hname,"d%i", i);	// Name of hist inside input root file
 
-				hRing[i] = (TH1F*) file->Get(hname);	
-				hRing[i]->Draw();
+				hRing[rID] = (TH1F*) file->Get(hname);	// Grabs hist from input root file
+				hRing[rID]->Draw();
 
-				vector < Double_t > peaks = findpeaks(hRing[i]);
+				vector < Double_t > peaks = findpeaks(hRing[rID]);	// Uses findpeaks function to return vector of peak loactions in ascending order.
 
 				if (peaks.size() != 5) {
-					outfile << i << "\t" << -1 << "\t" << 0 << endl;
+					printf("Channel %d (Ring %d) not calibrated!\n", i, rID);
+					outfile << i << "\t" << -1 << "\t" << 0 << endl;	// Turns off channel if the number of peaks found is not 5.
 				} else {
-					double *par = findcalib(peaks);
+					double *par = findcalib(peaks);	// Uses findcalib function to return a pointer to an array containing the calibration offset and slope for each channel
 					outfile << i << "\t" << std::fixed << setprecision(5) << *(par + 0) << "\t" << *(par + 1) << endl;
 				}
 
-				hRing[i]->GetXaxis()->SetRangeUser(300,1000);	
+				hRing[rID]->GetXaxis()->SetRangeUser(300,1000);
 
 			}
+
+			for(int i=FirstSector; i<nSectors+FirstSector; i++) {
+
+				sID = i - FirstSector;		// Sector number (within QQQ5) 0->3
+				cID = sID + nRings + 1;	// Subcanvas number (starts after rings)
+				cQQQ5->cd(cID);
+				sprintf(hname,"d%i", i);		// Name of hist inside input root file
+
+				hSector[sID] = (TH1F*) file->Get(hname);	// Grabs hist from input root file
+				hSector[sID]->Draw();
+
+				vector < Double_t > peaks = findpeaks(hSector[sID]); // Uses findpeaks function to return vector of peak loactions in ascending order.
+
+				if (peaks.size() != 5) {
+					printf("Channel %d (Sector %d) not calibrated!\n", i, sID);
+					outfile << i << "\t" << -1 << "\t" << 0 << endl;	// Turns off channel if the number of peaks found is not 5.
+				} else {
+					double *par = findcalib(peaks);	// Uses findcalib function to return a pointer to an array containing the calibration offset and slope for each channel
+					outfile << i << "\t" << std::fixed << setprecision(5) << *(par + 0) << "\t" << *(par + 1) << endl;
+				}
+
+				hSector[sID]->GetXaxis()->SetRangeUser(300,1000);	
+
+			}
+
 			outfile.close();
+}
+
+void calibrateORRUBA()	{
+
+	
+
 }
