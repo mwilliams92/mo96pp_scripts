@@ -51,14 +51,13 @@ double * findcalib(vector < Double_t > peaks)	{
 }
 
 // Feed this a layer to tell it which root file to use and the channels corresponding to the first ring and sector
-void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TString outputFile){
+void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TString outputFile, TDirectory *dir){
 
 	TFile *file=TFile::Open(inputFile);
+	dir->cd();
 
-	//if (vis)	{
-		TCanvas *cQQQ5 = new TCanvas("QQQ5"); // canvas for rings
-		cQQQ5->Divide(6,6);
-	//}
+	//TCanvas *cQQQ5 = new TCanvas("QQQ5"); // canvas for rings
+	//cQQQ5->Divide(6,6);
 			
 	const int nRings = 32;
 	const int nSectors = 4;
@@ -70,6 +69,10 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 	ofstream outfile;
 	outfile.open (outputFile);
 
+	TList *listRings = new TList();
+
+	TCanvas *cRing[nRings];  
+
 	for(int i=FirstRing; i<nRings+FirstRing; i++) {
 
 		rID = i - FirstRing;		// Ring number within QQQ5 0->31
@@ -79,11 +82,14 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 		hRing[rID] = (TH1F*) file->Get(hname);	// Grabs hist from input root file
 
 		cID = rID + 1;	// Subcanvas ID
-		cQQQ5->cd(cID);
+		//cQQQ5->cd(cID);
+		cRing[cID-1] = new TCanvas(Form("c%1.1i",i),Form("Ring %1.1i",rID),30,113,800,600);
 
 		hRing[rID]->Draw();
 
 		vector < Double_t > peaks = findpeaks(hRing[rID],5.,0.3);	// Uses findpeaks function to return vector of peak loactions in ascending order.
+
+		listRings->Add(cRing[cID-1]);  
 
 		if (peaks.size() != 5) {
 			printf("Channel %d (Ring %d) not calibrated!\n", i, rID);
@@ -97,6 +103,12 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 
 	}
 
+	dir->Append(listRings);
+
+	TList *listSectors = new TList();
+
+	TCanvas *cSector[nSectors];
+
 	for(int i=FirstSector; i<nSectors+FirstSector; i++) {
 
 		sID = i - FirstSector;		// Sector number (within QQQ5) 0->3
@@ -105,11 +117,16 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 		hSector[sID] = (TH1F*) file->Get(hname);	// Grabs hist from input root file
 		
 		cID = sID + nRings + 1;	// Subcanvas number (starts after rings)
-		cQQQ5->cd(cID);
+		//cQQQ5->cd(cID);
+
+		cSector[cID-1] = new TCanvas(Form("c%1.1i",i),Form("Sector%1.1i",sID),30,113,800,600);
 
 		hSector[sID]->Draw();
 
 		vector < Double_t > peaks = findpeaks(hSector[sID], 5., 0.3); // Uses findpeaks function to return vector of peak loactions in ascending order.
+
+		listSectors->Add(cSector[cID-1]);
+
 
 		if (peaks.size() != 5) {
 			printf("Channel %d (Sector %d) not calibrated!\n", i, sID);
@@ -121,18 +138,20 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 
 		hSector[sID]->GetXaxis()->SetRangeUser(300,4000);	
 
-		}
+	}
 
-		outfile.close();
+	dir->Append(listSectors);
+	outfile.close();
 }
 
 // Modified version of calibrateQQQ5 to account for rings not being instrumented in the downstream QQQ5 A detector in the E1 layer.
-void calibrateQQQ5mod(TString inputFile, Int_t FirstSector, TString outputFile){
+void calibrateQQQ5mod(TString inputFile, Int_t FirstSector, TString outputFile, TDirectory *dir){
 
 	TFile *file=TFile::Open(inputFile);
+	dir->cd();
 
-	TCanvas *cQQQ5 = new TCanvas("QQQ5"); // canvas for rings
-	cQQQ5->Divide(2,2);
+	//TCanvas *cQQQ5 = new TCanvas("QQQ5"); // canvas for rings
+	//cQQQ5->Divide(2,2);
 			
 	const int nSectors = 4;
 
@@ -143,6 +162,10 @@ void calibrateQQQ5mod(TString inputFile, Int_t FirstSector, TString outputFile){
 	ofstream outfile;
 	outfile.open (outputFile);
 
+	TList *listSectors = new TList();
+
+	TCanvas *cSector[nSectors];
+
 	for(int i=FirstSector; i<nSectors+FirstSector; i++) {
 
 		sID = i - FirstSector;		// Sector number (within QQQ5) 0->3
@@ -151,11 +174,15 @@ void calibrateQQQ5mod(TString inputFile, Int_t FirstSector, TString outputFile){
 		hSector[sID] = (TH1F*) file->Get(hname);	// Grabs hist from input root file
 		
 		cID = sID + 1;	// Subcanvas number (starts after rings)
-		cQQQ5->cd(cID);
+		//cQQQ5->cd(cID);
+
+		cSector[cID-1] = new TCanvas(Form("c%1.1i",i),Form("Sector%1.1i",sID),30,113,800,600);
 
 		hSector[sID]->Draw();
 
 		vector < Double_t > peaks = findpeaks(hSector[sID], 5., 0.3); // Uses findpeaks function to return vector of peak loactions in ascending order.
+
+		listSectors->Add(cSector[cID-1]);
 
 		if (peaks.size() != 5) {
 			printf("Channel %d (Sector %d) not calibrated!\n", i, sID);
@@ -167,9 +194,9 @@ void calibrateQQQ5mod(TString inputFile, Int_t FirstSector, TString outputFile){
 
 		hSector[sID]->GetXaxis()->SetRangeUser(300,4000);	
 
-		}
-
-		outfile.close();
+	}
+	dir->Append(listSectors);
+	outfile.close();
 }
 
 void calibrateIndv(TString inputFile, Int_t chan, Double_t sigma, Double_t thresh)	{
@@ -199,11 +226,26 @@ void calibrateORRUBA()	{
 	// then write the canvases to that output rootfile. One could even write a canvas for each channel and group them into directories
 	// so each calibrateQQQ5 will create a new directory in the output root file to dump the canvases. 
 
-	//calibrateQQQ5("../protons/cal228th_180deg_DS.root",497,561,"QQQ5dAdEcalib.dat");	// Downstream dE A
-	calibrateQQQ5("../protons/cal228th_180deg_DS.root",529,569,"QQQ5dBdEcalib.dat");	// Downstream dE B
-	//calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",577,673,"QQQ5dAE1calib.dat");	// Downstream E1 A
-	//calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",609,681,"QQQ5dBE1calib.dat");	// Downstream E1 B
-	//calibrateQQQ5mod("../protons/cal228th_QQQ5_E2.root",677,"QQQ5dAE2calib.dat");		// Downstream E2 A // Modified to only calibrate sectors (rings not instrumented)
-	//calibrateQQQ5("../protons/cal228th_QQQ5_E2.root",641,685,"QQQ5dBE2calib.dat");	// Downstream E2 B
+	gROOT->SetBatch(kTRUE); // Set Batch mode so you don't get a shit load of canvases popping up
+
+	TFile *root_outfile = new TFile("calibrateORRUBA.root", "RECREATE");
+	// Make a TDirectory for each detector 
+	TDirectory *dirQQQ5dAdE = root_outfile->mkdir("QQQ5dAdE");
+	TDirectory *dirQQQ5dBdE = root_outfile->mkdir("QQQ5dBdE");
+	TDirectory *dirQQQ5dAE1 = root_outfile->mkdir("QQQ5dAE1");
+	TDirectory *dirQQQ5dBE1 = root_outfile->mkdir("QQQ5dBE1");
+	TDirectory *dirQQQ5dAE2 = root_outfile->mkdir("QQQ5dAE2");
+	TDirectory *dirQQQ5dBE2 = root_outfile->mkdir("QQQ5dBE2");
+
+	calibrateQQQ5("../protons/cal228th_180deg_DS.root",497,561,"QQQ5dAdEcalib.dat", dirQQQ5dAdE);	// Downstream dE A
+	calibrateQQQ5("../protons/cal228th_180deg_DS.root",529,569,"QQQ5dBdEcalib.dat", dirQQQ5dBdE);	// Downstream dE B
+	calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",577,673,"QQQ5dAE1calib.dat", dirQQQ5dAE1); // Downstream E1 A
+	calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",609,681,"QQQ5dBE1calib.dat", dirQQQ5dBE1);	// Downstream E1 B
+	calibrateQQQ5mod("../protons/cal228th_QQQ5_E2.root",677,"QQQ5dAE2calib.dat", dirQQQ5dAE2);		// Downstream E2 A // Modified to only calibrate sectors (rings not instrumented)
+	calibrateQQQ5("../protons/cal228th_QQQ5_E2.root",641,685,"QQQ5dBE2calib.dat", dirQQQ5dBE2);	// Downstream E2 B
+
+	root_outfile->cd();
+	root_outfile->Write();
+	root_outfile->Close();	
 
 }
