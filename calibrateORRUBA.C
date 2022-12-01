@@ -28,7 +28,7 @@ vector < Double_t > findpeaks(TH1* h, Double_t sigma, Double_t thresh){
           	peaks.push_back(xpeaks[i]);  
       	}
     }
-
+	// sorts vector into ascending order
 	sort(peaks.begin(), peaks.end()); 
  	return peaks;
 }
@@ -87,12 +87,12 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 
 		hRing[rID]->Draw();
 
-		vector < Double_t > peaks = findpeaks(hRing[rID],5.,0.3);	// Uses findpeaks function to return vector of peak loactions in ascending order.
+		vector < Double_t > peaks = findpeaks(hRing[rID],4.,0.4);	// Uses findpeaks function to return vector of peak loactions in ascending order.
 
 		listRings->Add(cRing[cID-1]);  
 
 		if (peaks.size() != 5) {
-			printf("Channel %d (Ring %d) not calibrated!\n", i, rID);
+			printf("Channel %d (Ring %d) not calibrated! Found %lu peaks instead of 5.\n", i, rID, peaks.size());
 			outfile << i << "\t" << -1 << "\t" << 0 << endl;	// Turns off channel if the number of peaks found is not 5.
 		} else {
 			double *par = findcalib(peaks);	// Uses findcalib function to return a pointer to an array containing the calibration offset and slope for each channel
@@ -123,13 +123,13 @@ void calibrateQQQ5(TString inputFile, Int_t FirstRing, Int_t FirstSector, TStrin
 
 		hSector[sID]->Draw();
 
-		vector < Double_t > peaks = findpeaks(hSector[sID], 5., 0.3); // Uses findpeaks function to return vector of peak loactions in ascending order.
+		vector < Double_t > peaks = findpeaks(hSector[sID], 5., 0.4); // Uses findpeaks function to return vector of peak loactions in ascending order.
 
 		listSectors->Add(cSector[cID-1]);
 
 
 		if (peaks.size() != 5) {
-			printf("Channel %d (Sector %d) not calibrated!\n", i, sID);
+			printf("Channel %d (Sector %d) not calibrated! Found %lu peaks instead of 5.\n", i, sID, peaks.size());
 			outfile << i << "\t" << -1 << "\t" << 0 << endl;	// Turns off channel if the number of peaks found is not 5.
 		} else {
 			double *par = findcalib(peaks);	// Uses findcalib function to return a pointer to an array containing the calibration offset and slope for each channel
@@ -221,29 +221,40 @@ void calibrateIndv(TString inputFile, Int_t chan, Double_t sigma, Double_t thres
 
 void calibrateORRUBA()	{
 
-	// At the moment visualisation does not work correctly, since the next instance of calibrateQQQ5 overwrites the previous canvas.
-	// Ultimately it would be good to create an output root file in this function, which is then passed as an input for the calibrateQQQ5
-	// then write the canvases to that output rootfile. One could even write a canvas for each channel and group them into directories
-	// so each calibrateQQQ5 will create a new directory in the output root file to dump the canvases. 
-
 	gROOT->SetBatch(kTRUE); // Set Batch mode so you don't get a shit load of canvases popping up
 
+	// Create ROOT file
 	TFile *root_outfile = new TFile("calibrateORRUBA.root", "RECREATE");
-	// Make a TDirectory for each detector 
+
+	// Make a TDirectory for each detector
+	// Downstream
 	TDirectory *dirQQQ5dAdE = root_outfile->mkdir("QQQ5dAdE");
 	TDirectory *dirQQQ5dBdE = root_outfile->mkdir("QQQ5dBdE");
 	TDirectory *dirQQQ5dAE1 = root_outfile->mkdir("QQQ5dAE1");
 	TDirectory *dirQQQ5dBE1 = root_outfile->mkdir("QQQ5dBE1");
 	TDirectory *dirQQQ5dAE2 = root_outfile->mkdir("QQQ5dAE2");
 	TDirectory *dirQQQ5dBE2 = root_outfile->mkdir("QQQ5dBE2");
-
+	// Upstream
+	TDirectory *dirQQQ5uA = root_outfile->mkdir("QQQ5uA");
+	TDirectory *dirQQQ5uB = root_outfile->mkdir("QQQ5uB");
+	TDirectory *dirQQQ5uC = root_outfile->mkdir("QQQ5uC");
+	TDirectory *dirQQQ5uD = root_outfile->mkdir("QQQ5uD");
+/*
+	// Calibrate Downstream
 	calibrateQQQ5("../protons/cal228th_180deg_DS.root",497,561,"QQQ5dAdEcalib.dat", dirQQQ5dAdE);	// Downstream dE A
 	calibrateQQQ5("../protons/cal228th_180deg_DS.root",529,569,"QQQ5dBdEcalib.dat", dirQQQ5dBdE);	// Downstream dE B
-	calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",577,673,"QQQ5dAE1calib.dat", dirQQQ5dAE1); // Downstream E1 A
+	calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",577,673,"QQQ5dAE1calib.dat", dirQQQ5dAE1); 	// Downstream E1 A
 	calibrateQQQ5("../protons/cal228th_QQQ5_E1_a.root",609,681,"QQQ5dBE1calib.dat", dirQQQ5dBE1);	// Downstream E1 B
-	calibrateQQQ5mod("../protons/cal228th_QQQ5_E2.root",677,"QQQ5dAE2calib.dat", dirQQQ5dAE2);		// Downstream E2 A // Modified to only calibrate sectors (rings not instrumented)
-	calibrateQQQ5("../protons/cal228th_QQQ5_E2.root",641,685,"QQQ5dBE2calib.dat", dirQQQ5dBE2);	// Downstream E2 B
+	calibrateQQQ5mod("../protons/cal228th_QQQ5_E2.root",677,"QQQ5dAE2calib.dat", dirQQQ5dAE2);		// Downstream E2 A (only sectors instrumented)
+	calibrateQQQ5("../protons/cal228th_QQQ5_E2.root",641,685,"QQQ5dBE2calib.dat", dirQQQ5dBE2);		// Downstream E2 B
+*/
+	// Calibrate Upstream
+	calibrateQQQ5("../protons/cal228th_0deg_US.root",1,129,"QQQ5uAcalib.dat", dirQQQ5uA);	// Downstream dE A
+//	calibrateQQQ5("../protons/cal228th_0deg_US.root",33,133,"QQQ5uBcalib.dat", dirQQQ5uB);	// Downstream dE B
+//	calibrateQQQ5("../protons/cal228th_0deg_US.root",65,137,"QQQ5uCcalib.dat", dirQQQ5uC); 	// Downstream E1 A
+//	calibrateQQQ5("../protons/cal228th_0deg_US.root",97,141,"QQQ5uDcalib.dat", dirQQQ5uD);	// Downstream E1 B
 
+	// Write root file
 	root_outfile->cd();
 	root_outfile->Write();
 	root_outfile->Close();	
