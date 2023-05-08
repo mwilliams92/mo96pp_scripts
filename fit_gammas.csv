@@ -1,0 +1,6 @@
+﻿Egamma,gaus,step,background,include,fit lo,fit hi,Ex Min,Ex Max,latex
+778.2,gaus,FALSE,linear,TRUE,758.2,788.2,6.5,10.6,^{96}Mo \; 2^{+}_{1}\rightarrow 0^{+}_{g.s.} \; E_{\gamma} = 778 \; \mathrm{keV}
+719.5,gaus,FALSE,linear,TRUE,710.0,727.0,6.5,10.6,^{96}Mo \; 2^{+}_{2}\rightarrow 2^{+}_{1} \; E_{\gamma} = 720 \; \mathrm{keV}
+849.0,gaus,FALSE,linear,TRUE,840.0,855.0,6.5,10.6,^{96}Mo \; 2^{+}_{3}\rightarrow 2^{+}_{1} \; \mathrm{and} \; 4^{+}_{1}\rightarrow 2^{+}_{1} \; E_{\gamma} = 840 \; \mathrm{keV}
+812.5,gaus,FALSE,linear,TRUE,806.0,820.0,6.5,10.6,^{96}Mo \; 6^{+}_{1}\rightarrow 4^{+}_{1} \; E_{\gamma} = 813 \; \mathrm{keV}
+1090.5,gaus,FALSE,linear,TRUE,1080.0,1100.0,6.5,10.6,^{96}Mo \; 4^{+}_{2}\rightarrow 2^{+}_{1} \; E_{\gamma} = 1091 \; \mathrm{keV}

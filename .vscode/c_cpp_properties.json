@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Linux - rootcling",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/williams328/packages/root/include"
+            ],
+            "defines": [],
+            "compilerPath": "/home/williams328/packages/root/bin/rootcling",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}
