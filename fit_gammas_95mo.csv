@@ -1,0 +1,4 @@
+Egamma,gaus,step,background,include,fit lo,fit hi,Ex Min,Ex Max,latex
+204,gaus,FALSE,linear,TRUE,198,210,9.2,11.,^{95}Mo \; 3/2^{+}_{1} \rightarrow 5/2^{+}_{g.s.} \; E_{\gamma} = 204 \; keV
+765.5,gaus,FALSE,linear,TRUE,759,772,9.6,11.,^{95}Mo \; 7/2^{+}_{1} \rightarrow 5/2^{+}_{g.s.} \; E_{\gamma} = 766 \; keV
+948,gaus,FALSE,linear,TRUE,938,958,9.9,11.,^{95}Mo \; 9/2_{1}^{+} \rightarrow 5/2_{g.s.}^{+} \; E_{\gamma} = 948 \; keV

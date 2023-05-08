@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "cppbuild",
+            "command": "g++",
+            "args": [
+                "-std=c++11",
+                "singles_analysis.cpp",
+                "analysis.h",
+                "CubicSpline.h",
+                "`root-config --libs --cflags`",
+                "-o",
+                "analyse"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

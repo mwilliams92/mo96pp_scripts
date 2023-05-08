@@ -1,0 +1,20 @@
+{
+//========= Macro generated from object: CUTG/Graph
+//========= by ROOT version6.24/02
+   
+   TCutG *cutg = new TCutG("CUTG",9);
+   cutg->SetVarX("Particle ID");
+   cutg->SetVarY("");
+   cutg->SetTitle("Graph");
+   cutg->SetFillStyle(1000);
+   cutg->SetPoint(0,8557.31,2285.07);
+   cutg->SetPoint(1,6361.97,2235.42);
+   cutg->SetPoint(2,4020.28,2299.26);
+   cutg->SetPoint(3,2640.35,2405.64);
+   cutg->SetPoint(4,3225.78,2802.82);
+   cutg->SetPoint(5,4689.33,2923.39);
+   cutg->SetPoint(6,6403.79,2923.39);
+   cutg->SetPoint(7,8850.02,2895.02);
+   cutg->SetPoint(8,8557.31,2285.07);
+   cutg->Draw("");
+}
